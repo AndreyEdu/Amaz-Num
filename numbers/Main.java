@@ -1,6 +1,5 @@
 package numbers;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -13,6 +12,7 @@ public class Main {
                 - enter two natural numbers to obtain the properties of the list:
                   * the first parameter represents a starting number;
                   * the second parameter shows how many consecutive numbers are to be printed;
+                - two natural numbers and a property to search for;
                 - separate the parameters with one space;
                 - enter 0 to exit.
                 
@@ -27,7 +27,7 @@ public class Main {
             System.out.print("Enter a request: ");
             numString = scanner.nextLine();
             String[] numInput = numString.split(" ");
-            if (numInput[0].equals("exit")) {
+            if (!numInput[0].matches("\\d+")) {
                 System.out.println("The first parameter should be a natural number or zero.");
                 continue;
             } else if (numInput[0].equals("0")) {
@@ -46,16 +46,105 @@ public class Main {
                 numberTwo = Long.parseLong(numInput[1]);
                 numString = numInput[0];
                 if (numberOne > 0 && numberTwo > 0) {
-                    printPropertiesTwoNumbers(numberOne, numString, numberTwo);
+                    for (int i = 0; i < numberTwo; i++) {
+                        printPropertiesTwoNumbers(numberOne, numString);
+                        numberOne++;
+                        numString = Long.toString(numberOne);
+                    }
                 } else if (numberOne < 0) {
                     System.out.println("The first parameter should be a natural number or zero.");
                 } else if (numberTwo < 0) {
                     System.out.println("The second parameter should be a natural number.");
                 }
+            } else if (numInput.length == 3) {
+                numberOne = Long.parseLong(numInput[0]);
+                numberTwo = Long.parseLong(numInput[1]);
+                numString = numInput[0];
+                String property = numInput[2].toLowerCase();
+                switch (property) {
+                    case "buzz":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isBuzz(numberOne, numString)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "duck":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isDuck(numString)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "palindromic":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isPalindromic(numString)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "gapful":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isGapful(numberOne, numString)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "spy":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isSpy(numString)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "even":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isEven(numberOne)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    case "odd":
+                        for (int i = 0; i < numberTwo;) {
+                            if (isOdd(numberOne)) {
+                                printPropertiesTwoNumbers(numberOne, numString);
+                                i++;
+                            }
+                            numberOne++;
+                            numString = Long.toString(numberOne);
+                        }
+                        break;
+                    default:
+                        System.out.println("The property " + property + " is wrong.");
+                        System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, EVEN, ODD]");
+                        break;
+                }
             }
         } while (true);
     }
 
+
+    public static boolean isNaturalNumber(long number) {
+        return number > 0;
+    }
     public static boolean isEven(long number) {
         return number % 2 == 0;
     }
@@ -80,14 +169,7 @@ public class Main {
     }
 
     public static boolean isPalindromic(String numString) {
-        char[] arrayEnd = new char[numString.length()];
-        char[] arrayStart = numString.toCharArray();
-        int count = 0;
-        for (int i = numString.length() - 1; i != -1; i--) {
-            arrayEnd[count] = numString.charAt(i);
-            count++;
-        }
-        return Arrays.equals(arrayEnd, arrayStart);
+        return new StringBuilder(numString).reverse().toString().equals(numString);
     }
 
     public static boolean isGapful(long number, String numString) {
@@ -95,6 +177,18 @@ public class Main {
         char[] remainder = new char[] {charString[0], charString[charString.length - 1]};
         int remaind = Integer.parseInt(String.valueOf(remainder));
         return numString.length() >= 3 && number % remaind == 0;
+    }
+
+    public static boolean isSpy(String numString) {
+        long sum = 0;
+        long product = 1;
+        long[] arr = new long[numString.length()];
+        for (int i = 0; i < numString.length(); i++) {
+            arr[i] = Long.parseLong(String.valueOf(numString.charAt(i)));
+            sum += arr[i];
+            product *= arr[i];
+        }
+        return sum == product;
     }
 
     public static void printProperties(long number, String numString) {
@@ -105,32 +199,33 @@ public class Main {
         System.out.println("        duck: " + isDuck(numString));
         System.out.println(" palindromic: " + isPalindromic(numString));
         System.out.println("      gapful: " + isGapful(number, numString));
+        System.out.println("         spy: " + isSpy(numString));
     }
 
-    public static void printPropertiesTwoNumbers(long numberOne, String numString, long numberTwo) {
-        for (int i = 0; i < numberTwo; i++) {
-            System.out.print(numberOne + " is");
-            if (isBuzz(numberOne, numString)) {
-                System.out.print(" buzz");
-            }
-            if (isDuck(numString)) {
-                System.out.print(" duck");
-            }
-            if (isPalindromic(numString)) {
-                System.out.print(" palindromic");
-            }
-            if (isGapful(numberOne, numString)) {
-                System.out.print(" gapful");
-            }
-            if (isEven(numberOne)) {
-                System.out.print(" even");
-            }
-            if (isOdd(numberOne)) {
-                System.out.print(" odd");
-            }
-            numberOne++;
-            numString = Long.toString(numberOne);
-            System.out.println();
+    public static void printPropertiesTwoNumbers(long numberOne, String numString) {
+
+        System.out.print(numberOne + " is");
+        if (isBuzz(numberOne, numString)) {
+            System.out.print(" buzz");
         }
+        if (isDuck(numString)) {
+            System.out.print(" duck");
+        }
+        if (isPalindromic(numString)) {
+            System.out.print(" palindromic");
+        }
+        if (isGapful(numberOne, numString)) {
+            System.out.print(" gapful");
+        }
+        if (isEven(numberOne)) {
+            System.out.print(" even");
+        }
+        if (isOdd(numberOne)) {
+            System.out.print(" odd");
+        }
+        if (isSpy(numString)) {
+            System.out.print(" spy");
+        }
+        System.out.println();
     }
 }
