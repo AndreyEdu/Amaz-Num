@@ -74,52 +74,30 @@ public class Main {
                     }
                 } else {
                     System.out.println("The property " + property + " is wrong.");
-                    System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD]");
+                    System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD, JUMPING]");
                 }
 
 
-            } else if (numInput.length == 4) {
-                String[] arr = new String[2];
+            } else {
                 numberOne = Long.parseLong(numInput[0]);
                 numberTwo = Long.parseLong(numInput[1]);
                 numString = numInput[0];
-                String propertyOne = numInput[2].toLowerCase();
-                String propertyTwo = numInput[3].toLowerCase();
-                if (propertyOne.equals("sunny") && propertyTwo.equals("square") || propertyTwo.equals("sunny") && propertyOne.equals("square")) {
-                    System.out.println("The request contains mutually exclusive properties: [SQUARE, SUNNY]\n" +
-                            "There are no numbers with these properties.");
-                    continue;
-                } else if (propertyOne.equals("odd") && propertyTwo.equals("even") || propertyTwo.equals("odd") && propertyOne.equals("even")) {
-                    System.out.println("The request contains mutually exclusive properties: [ODD, EVEN]\n" +
-                            "There are no numbers with these properties.");
-                    continue;
-                } else if (propertyOne.equals("duck") && propertyTwo.equals("spy") || propertyTwo.equals("duck") && propertyOne.equals("spy")) {
-                    System.out.println("The request contains mutually exclusive properties: [ODD, EVEN]\n" +
-                            "There are no numbers with these properties.");
-                    continue;
-                }
-                if (checkException(propertyOne) && checkException(propertyTwo)) {
-                    for(int i = 0; i < numberTwo;) {
-                        if (isProperty(propertyOne, numberOne, numString) && isProperty(propertyTwo, numberOne, numString)) {
+                int numOfProperties = numInput.length;
+                if (propertyWrong(numInput) && noNumbers(numInput)) {
+                    for (int i = 0; i < numberTwo;) {
+                        int check = 0;
+                        for (int j = 2; j < numOfProperties; j++) {
+                            if (isProperty(numInput[j], numberOne, numString)) {
+                                check++;
+                            }
+                        }
+                        if (check == numInput.length - 2) {
                             printPropertiesTwoNumbers(numberOne, numString);
                             i++;
                         }
                         numberOne++;
                         numString = String.valueOf(numberOne);
                     }
-                } else if (!checkException(propertyOne) && !checkException(propertyTwo)) {
-                    arr[0] = propertyOne;
-                    arr[1] = propertyTwo;
-                    System.out.println("The properties " + propertyOne + " " + propertyTwo + " are wrong.");
-                    System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD]");
-                } else if (!checkException(propertyOne)) {
-                    arr[0] = propertyOne;
-                    System.out.println("The property " + propertyOne + " is wrong.");
-                    System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD]");
-                } else if (!checkException(propertyTwo)) {
-                    arr[1] = propertyTwo;
-                    System.out.println("The property " + propertyTwo + " is wrong.");
-                    System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD]");
                 }
             }
         } while (true);
@@ -127,13 +105,68 @@ public class Main {
 
     protected static boolean checkException(String property) {
         int count = 0;
-        String[] propertyArr = {"buzz", "duck", "palindromic", "gapful", "spy", "square", "sunny", "even", "odd"};
+        String[] propertyArr = {"buzz", "duck", "palindromic", "gapful", "spy", "square", "sunny", "even", "odd", "jumping"};
         for (String s : propertyArr) {
             if (property.equals(s)) {
                 count++;
             }
         }
         return count > 0;
+    }
+
+    protected static boolean propertyWrong(String[] numInput) {
+        int count = 0;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 2; i < numInput.length; i++) {
+            if(!isProperty(numInput[i].toLowerCase())) {
+                sb.append(numInput[i]).append(" ");
+                count++;
+            }
+        }
+        if (count == 1) {
+            sb.insert(0, "The property ");
+            sb.append(" is wrong");
+            System.out.println(sb);
+            System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD, JUMPING]");
+            return false;
+        } else if (count > 1) {
+            sb.insert(0, "The properties ");
+            sb.append(" are wrong");
+            System.out.println(sb);
+            System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD, JUMPING]");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    protected static boolean noNumbers(String[] numInput) {
+        int countDS = 0;
+        int countSS = 0;
+        int countEO = 0;
+        for (int i = 2; i < numInput.length; i++) {
+            switch (numInput[i]) {
+                case "duck", "spy" -> countDS++;
+                case "even", "odd" -> countEO++;
+                case "sunny", "square" -> countSS++;
+            }
+        }
+        if (countDS == 2) {
+            System.out.println("The request contains mutually exclusive properties: [DUCK, SPY]\n" +
+                    "There are no numbers with these properties.");
+            return false;
+        }
+        if (countEO == 2) {
+            System.out.println("The request contains mutually exclusive properties: [EVEN, ODD]\n" +
+                    "There are no numbers with these properties.");
+            return false;
+        }
+        if (countSS == 2) {
+            System.out.println("The request contains mutually exclusive properties: [SQUARE, SUNNY]\n" +
+                    "There are no numbers with these properties.");
+            return false;
+        }
+        return true;
     }
 
     public static boolean isProperty(String property, long numberOne, String numString) {
@@ -156,12 +189,17 @@ public class Main {
                 return isSunny(numberOne);
             case "square":
                 return isSquare(numberOne);
-            default:
-                System.out.println("The property " + property + " is wrong.");
-                System.out.println("Available properties: [BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY, EVEN, ODD]");
-                break;
+            case "jumping":
+                return isJumping(numberOne, numString);
         }
         return false;
+    }
+
+    public static boolean isProperty(String property) {
+        return switch (property) {
+            case "buzz", "palindromic", "duck", "gapful", "even", "spy", "odd", "sunny", "square", "jumping" -> true;
+            default -> false;
+        };
     }
     public static boolean isNaturalNumber(long number) {
         return number > 0;
@@ -223,6 +261,25 @@ public class Main {
         return isSquare(numberOne + 1);
     }
 
+    public static boolean isJumping(long numberOne, String numString) {
+        if (numString.length() == 1) {
+            return true;
+        }
+        long[] array = new long[numString.length()];
+        for (int i = 0; i < numString.length(); i++) {
+            array[i] = numberOne % 10;
+            numberOne /= 10;
+        }
+        for (int i = 1; i <= array.length - 1; i++) {
+            if (array[i] - 1 == array[i - 1] || array[i] + 1 == array[i - 1]) {
+
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void printProperties(long number, String numString) {
         System.out.println("Properties of " + number);
         System.out.println("        even: " + isEven(number));
@@ -234,6 +291,7 @@ public class Main {
         System.out.println("         spy: " + isSpy(numString));
         System.out.println("      square: " + isSquare(number));
         System.out.println("       sunny: " + isSunny(number));
+        System.out.println("     jumping: " + isJumping(number, numString));
     }
 
     public static void printPropertiesTwoNumbers(long numberOne, String numString) {
@@ -265,6 +323,9 @@ public class Main {
         }
         if (isSunny(numberOne)) {
             System.out.print(" sunny");
+        }
+        if (isJumping(numberOne, numString)) {
+            System.out.print(" jumping");
         }
         System.out.println();
     }
